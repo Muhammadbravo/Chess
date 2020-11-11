@@ -57,10 +57,10 @@ class Game_state():
 
             # En-passant move
             if r == 3: # light pawn on 5th row
-				# opponent piece adjacent to the left and a square behind it is empty
+				# opponent piece adjacent to the left and a square behind it, is empty
                 if self.board[r][c-1] == "pd" and self.board[r-1][c-1] == "  ": 
                     moves.append(Move((r, c), (r-1, c-1), self.board))
-				# opponent piece adjacent to the right and a square behind it is empty
+				# opponent piece adjacent to the right and a square behind it, is empty
                 if self.board[r][c+1] == "pd" and self.board[r-1][c+1] == "  ":
                     moves.append(Move((r, c), (r-1, c+1), self.board))
 			

@@ -236,11 +236,6 @@ class Game_state():
         """
             moves pieces on the board
         """
-        self.board[move.start_row][move.start_col] = "  "
-        self.board[move.end_row][move.end_col] = move.piece_moved
-        self.move_log.append(move) # log move
-        self.light_to_move = not self.light_to_move # next player to move
-
         if move.move_type == "en_passant": # if move is an en-passant move
             if self.light_to_move: # if it's light's turn to move
                 # capturing piece
@@ -250,6 +245,11 @@ class Game_state():
                 # capturing piece
                 move.piece_captured = self.board[move.end_row - 1][move.end_col]
                 self.board[move.end_row - 1][move.end_col] = "  "
+        
+        self.board[move.start_row][move.start_col] = "  "
+        self.board[move.end_row][move.end_col] = move.piece_moved
+        self.move_log.append(move) # log move
+        self.light_to_move = not self.light_to_move # next player to move
 
 
     def undo_move(self, look_ahead_mode = False):
@@ -357,7 +357,7 @@ class Move():
         if isinstance(other, Move): # if first (self) and second (other) parameters are both Move objects
             return self.start_row == other.start_row and self.start_col == other.start_col and \
                     self.end_row == other.end_row and self.end_col == other.end_col and \
-                         self.move_type == other.move_type
+                    self.move_type == other.move_type
         else:
             return False
 

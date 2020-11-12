@@ -241,6 +241,16 @@ class Game_state():
         self.move_log.append(move) # log move
         self.light_to_move = not self.light_to_move # next player to move
 
+        if move.move_type == "en_passant": # if move is an en-passant move
+            if self.light_to_move: # if it's light's turn to move
+                # capturing piece
+                move.piece_captured = self.board[move.end_row + 1][move.end_col]
+                self.board[move.end_row + 1][move.end_col] = "  "
+            else: # if it's dark's turn to move
+                # capturing piece
+                move.piece_captured = self.board[move.end_row - 1][move.end_col]
+                self.board[move.end_row - 1][move.end_col] = "  "
+
 
     def undo_move(self, look_ahead_mode = False):
         """

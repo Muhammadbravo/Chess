@@ -62,11 +62,11 @@ class Game_state():
                         # if the pawn made a double move on this piece's left side 
                         if (self.move_log[-1].end_row, self.move_log[-1].end_col) == (r,c-1):
                             # create a move object and append to list
-                            moves.append(Move((r, c), (r-1, c-1), self.board))
+                            moves.append(Move((r, c), (r-1, c-1), self.board, move_type="en_passant"))
                         # if the pawn made a double move on this piece's right side 
                         elif (self.move_log[-1].end_row, self.move_log[-1].end_col) == (r,c+1):
                             # create a move object and append to list
-                            moves.append(Move((r, c), (r-1, c+1), self.board))
+                            moves.append(Move((r, c), (r-1, c+1), self.board, move_type="en_passant"))
                         # if the pawn did not make a double move
                         else:
                             pass
@@ -95,11 +95,11 @@ class Game_state():
                         # if the pawn made a double move on this piece's left side 
                         if (self.move_log[-1].end_row, self.move_log[-1].end_col) == (r,c+1):
                             # create a move object and append to list
-                            moves.append(Move((r, c), (r+1, c+1), self.board))
+                            moves.append(Move((r, c), (r+1, c+1), self.board, move_type="en_passant"))
                         # if the pawn made a double move on this piece's right side 
-                        elif (self.move_log[-1].end_row, self.move_log[-1].end_col) == (r,c+1):
+                        elif (self.move_log[-1].end_row, self.move_log[-1].end_col) == (r,c-1):
                             # create a move object and append to list
-                            moves.append(Move((r, c), (r+1, c+1), self.board))
+                            moves.append(Move((r, c), (r+1, c-1), self.board, move_type="en_passant"))
                         # if the pawn did not make a double move
                         else:
                             pass
@@ -292,7 +292,7 @@ class Move():
     # map columns to files (revers of files to columns)
     cols_to_files = {col:file for file, col in files_to_cols.items()}
 
-    def __init__(self, start_sq, end_sq, board):
+    def __init__(self, start_sq, end_sq, board, move_type="normal"):
         """
             A Move class abstracting all parameters needed
             for moving chess pieces on the board
@@ -308,6 +308,7 @@ class Move():
         self.end_col = end_sq[1] # intended column destiantion of piece to e moved
         self.piece_moved = board[self.start_row][self.start_col] # actual piece moved
         self.piece_captured = board[self.end_row][self.end_col] # opponent piece if any on the destination square
+        self.move_type = move_type # variable to store move type
 
     def get_chess_notation(self):
         """

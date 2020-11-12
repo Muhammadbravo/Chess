@@ -346,7 +346,8 @@ class Move():
 
         if isinstance(other, Move): # if first (self) and second (other) parameters are both Move objects
             return self.start_row == other.start_row and self.start_col == other.start_col and \
-                    self.end_row == other.end_row and self.end_col == other.end_col
+                    self.end_row == other.end_row and self.end_col == other.end_col and \
+                         self.move_type == other.move_type
         else:
             return False
 

@@ -55,14 +55,21 @@ class Game_state():
         ## FIX
         if self.light_to_move: # if it's light's turn to move
 
-            # En-passant move
-            if r == 3: # light pawn on 5th row
-				# opponent piece adjacent to the left and a square behind it, is empty
-                if self.board[r][c-1] == "pd" and self.board[r-1][c-1] == "  ": 
-                    moves.append(Move((r, c), (r-1, c-1), self.board))
-				# opponent piece adjacent to the right and a square behind it, is empty
-                if self.board[r][c+1] == "pd" and self.board[r-1][c+1] == "  ":
-                    moves.append(Move((r, c), (r-1, c+1), self.board))
+            # en-passant move
+            if len(self.move_log) != 0: # if move log is not empty
+                if self.move_log[-1].piece_moved[0] == 'p': # if last piece moved is a pawn
+                    if self.move_log[-1].start_row == 1: # if it's the pawn's first move
+                        # if the pawn made a double move on this piece's left side 
+                        if (self.move_log[-1].end_row, self.move_log[-1].end_col) == (r,c-1):
+                            # create a move object and append to list
+                            moves.append(Move((r, c), (r-1, c-1), self.board))
+                        # if the pawn made a double move on this piece's right side 
+                        elif (self.move_log[-1].end_row, self.move_log[-1].end_col) == (r,c+1):
+                            # create a move object and append to list
+                            moves.append(Move((r, c), (r-1, c+1), self.board))
+                        # if the pawn did not make a double move
+                        else:
+                            pass
 			
             if r-1 >= 0 and self.board[r-1][c] == "  ": # one square advance
                 moves.append(Move((r, c), (r-1, c), self.board))
@@ -81,15 +88,22 @@ class Game_state():
 
         else: # if it's dark's turn to move
 
-            # En-passant move
-            if r == 4: # dark pawn on 5th row
-				# opponent piece adjacent to the left and a square behind it is empty
-                if self.board[r][c-1] == "pl" and self.board[r+1][c-1] == "  ": 
-                    moves.append(Move((r, c), (r+1, c-1), self.board))
-				# opponent piece adjacent to the right and a square behind it is empty
-                if self.board[r][c+1] == "pl" and self.board[r+1][c+1] == "  ":
-                    moves.append(Move((r, c), (r+1, c+1), self.board))
-                    
+            # en-passant move
+            if len(self.move_log) != 0: # if move log is not empty
+                if self.move_log[-1].piece_moved[0] == 'p': # if last piece moved is a pawn
+                    if self.move_log[-1].start_row == 6: # if it's the pawn's first move
+                        # if the pawn made a double move on this piece's left side 
+                        if (self.move_log[-1].end_row, self.move_log[-1].end_col) == (r,c+1):
+                            # create a move object and append to list
+                            moves.append(Move((r, c), (r+1, c+1), self.board))
+                        # if the pawn made a double move on this piece's right side 
+                        elif (self.move_log[-1].end_row, self.move_log[-1].end_col) == (r,c+1):
+                            # create a move object and append to list
+                            moves.append(Move((r, c), (r+1, c+1), self.board))
+                        # if the pawn did not make a double move
+                        else:
+                            pass
+
             if r+1 <= 7 and self.board[r+1][c] == "  ": # one square advance
                 moves.append(Move((r, c), (r+1, c), self.board))
                 

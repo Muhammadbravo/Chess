@@ -260,8 +260,12 @@ class Game_state():
             last_move = self.move_log.pop()
             self.board[last_move.start_row][last_move.start_col] = last_move.piece_moved
             self.board[last_move.end_row][last_move.end_col] = last_move.piece_captured
-            self.board[last_move.end_row + 1][last_move.end_col] = last_move.piece_captured # Undo for light en-passant
-            self.board[last_move.end_row - 1][last_move.end_col] = last_move.piece_captured # Undo for dark en-passant
+            
+            # if Undo move is en_passant
+            if last_move.move_type == "en_passant": 
+                self.board[last_move.end_row + 1][last_move.end_col] = last_move.piece_captured # Undo for light en-passant
+                self.board[last_move.end_row - 1][last_move.end_col] = last_move.piece_captured # Undo for dark en-passant
+            
             self.light_to_move = not self.light_to_move
 
             print("undoing ->", last_move.get_chess_notation())

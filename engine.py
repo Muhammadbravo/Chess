@@ -3,17 +3,19 @@
 
 
 class Game_state():
-
+	
     def __init__(self):
         """
             The chess board is an 8 X 8 dimensional array (Matrix of 8 rows and 8 columns )
-            i.e a list of lists. Each element of the Matrix is a string of two characters
+            i.e a list of lists. Each element of the Matrix is a string of two characters 
             representing the chess pieces in the order "type" + "colour"
 
             light pawn = pl
             dark pawn  = pd
 
-
+            light knight = nl
+            dark knight  = nd
+            e.t.c
 
             empty board square = "  " ---> double empty space
 
@@ -35,10 +37,9 @@ class Game_state():
         self.move_piece = {"p":self.get_pawn_moves, "r":self.get_rook_moves, \
                         "q":self.get_queen_moves, "k":self.get_king_moves, \
                         "b":self.get_bishop_moves, "n":self.get_knight_moves}
-                        
-    
+
+
     def get_pawn_moves(self, r, c, moves):
-    
         """
             Calculates all possible pawn moves for a given color (light or dark)
             and appends them to a list
@@ -54,6 +55,22 @@ class Game_state():
         
         ## FIX
         if self.light_to_move: # if it's light's turn to move
+            
+            # if square is empty and in front of pawn
+            if (r-1 >= 0) and (self.board[r-1][c] == "  "):
+                moves.append(Move((r, c), (r-1, c), self.board)) # create a move object and append to list
+                # if square two steps in front of pawn is empty and it is the pawn's first move
+                if (r == 6) and (self.board[r-2][c] == "  "):
+                    moves.append(Move((r, c), (r-2, c), self.board)) # create a move object and append to list
+            
+            
+            # if square on pawn's left diagonal has an opponent piece
+            if ((r-1 >= 0) and (c-1 >= 0)) and (self.board[r-1][c-1][1] == "d"):
+                moves.append(Move((r, c), (r-1, c-1), self.board)) # create a move object and append to list
+            
+            # if square on pawn's right diagonal has an opponent piece
+            if ((r-1 >= 0) and (c+1 < len(self.board))) and (self.board[r-1][c+1][1] == "d"):
+                moves.append(Move((r, c), (r-1, c+1), self.board)) # create a move object and append to list
 
             # en-passant move
             if len(self.move_log) != 0: # if move log is not empty
@@ -71,23 +88,24 @@ class Game_state():
                         else:
                             pass
 			
-            if r-1 >= 0 and self.board[r-1][c] == "  ": # one square advance
-                moves.append(Move((r, c), (r-1, c), self.board))
-                
-                if r == 6 and self.board[r-2][c] == "  ": # two square advance
-                    moves.append(Move((r, c), (r-2, c), self.board))
-                    
-            if c-1 >= 0: # left captures
-                if r-1 >=0 and self.board[r-1][c-1][1] == "d": # dark piece present
-                    moves.append(Move((r, c), (r-1, c-1), self.board))
-            
-            if c+1 <= len(self.board[0]) - 1: # right captures
-                if r-1>= 0  and self.board[r-1][c+1][1] == "d":
-                    moves.append(Move((r, c), (r-1, c+1), self.board))
-
 
         else: # if it's dark's turn to move
-
+            
+            # if square is empty and in front of pawn
+            if (r+1 < len(self.board)) and (self.board[r+1][c] == "  "):
+                moves.append(Move((r, c), (r+1, c), self.board)) # create a move object and append to list
+                # if square two steps in front of pawn is empty and it is the pawn's first move
+                if (r == 1) and (self.board[r+2][c] == "  "):
+                    moves.append(Move((r, c), (r+2, c), self.board)) # create a move object and append to list
+            
+            # if square on pawn's left diagonal has an opponent piece
+            if ((r+1 < len(self.board)) and (c-1 >= 0)) and (self.board[r+1][c-1][1] == "l"):
+                moves.append(Move((r, c), (r+1, c-1), self.board)) # create a move object and append to list
+            
+            # if square on pawn's right diagonal has an opponent piece
+            if ((r+1 < len(self.board)) and (c+1 < len(self.board))) and (self.board[r+1][c+1][1] == "l"):
+                moves.append(Move((r, c), (r+1, c+1), self.board)) # create a move object and append to list
+            
             # en-passant move
             if len(self.move_log) != 0: # if move log is not empty
                 if self.move_log[-1].piece_moved[0] == 'p': # if last piece moved is a pawn
@@ -104,24 +122,10 @@ class Game_state():
                         else:
                             pass
 
-            if r+1 <= 7 and self.board[r+1][c] == "  ": # one square advance
-                moves.append(Move((r, c), (r+1, c), self.board))
-                
-                if r == 1 and self.board[r+2][c] == "  ": # two square advance
-                    moves.append(Move((r, c), (r+2, c), self.board))
-                    
-            if c-1 >= 0: # left captures
-                if r+1 <= 7 and self.board[r+1][c-1][1] == "l": # light piece present
-                    moves.append(Move((r, c), (r+1, c-1), self.board))
-                
-            if c+1 <= len(self.board[0]) - 1: # right captures
-                if r+1 <= 7 and self.board[r+1][c+1][1] == "l":
-                    moves.append(Move((r, c), (r+1, c+1), self.board))
-
 
     def get_bishop_moves(self, r, c, moves):
-
-         """
+        
+        """
             calculates all possible bishop moves for a given colour (light or dark)
             and appends them to a list
 
@@ -132,31 +136,114 @@ class Game_state():
 
             return parameter(s):
             None
-         """
-
-         ##TODO
-         pass
+        """
+        direction = ((-1, -1), (1, 1), (1, -1), (-1, 1))  # possible  Bishop direction
+        if self.light_to_move:  # light piece turn to move
+            for d in direction:
+                for i in range(1, len(self.board)):
+                    rownum = r + d[0] * i
+                    colnum = c + d[1] * i
+                    if (0 <= rownum < len(self.board)) and (
+                            0 <= colnum < len(self.board)):  # making sure r and c on board
+                        if self.board[rownum][colnum] == "  ":  # if square is empty
+                            moves.append(Move((r, c), (rownum, colnum), (self.board)))
+                        elif self.board[rownum][colnum][1] == "d":  # if square has opponent piece
+                            moves.append(Move((r, c), (rownum, colnum), (self.board)))
+                            break
+                        else:
+                            break  # when ally piece encountered
+                    else:
+                        break  # when off the board
+        else:  # Dark piece turn to move
+            for d in direction:
+                for i in range(1, len(self.board)):
+                    rownum = r + d[0] * i
+                    colnum = c + d[1] * i
+                    if (0 <= rownum < len(self.board)) and (
+                            0 <= colnum < len(self.board)):  # making sure r and c on board
+                        if self.board[rownum][colnum] == "  ":  # if square is empty
+                            moves.append(Move((r, c), (rownum, colnum), (self.board)))
+                        elif self.board[rownum][colnum][1] == "l":  # if square has opponent piece
+                            moves.append(Move((r, c), (rownum, colnum), (self.board)))
+                            break
+                        else:
+                            break  # when ally piece encountered
+                    else:
+                        break  # when off the board
 
 
     def get_knight_moves(self, r, c, moves):
-         ##TODO
-         pass
 
-    
+        """
+            calculates all possible knight moves for a given colour (light or dark)
+            and appends them to a list
+
+            input parameters:
+            r     --> starting row (int)
+            c     --> starting column (int)
+            moves --> posiible moves container (list)
+
+            return parameter(s):
+            None
+        """
+        #possible squares for knight move
+        squares = (
+            (r+2,c+1), (r+2,c-1), (r-2,c+1), (r-2,c-1),
+            (r+1,c+2), (r+1,c-2), (r-1,c+2), (r-1,c-2)
+        )
+
+        if self.light_to_move: # if it's light's turn to move
+            available_squares = (" ", "d") #squares the knight can move to
+
+            for square in squares:
+                i,j = square
+                if ( (0 <= i < len(self.board)) and (0 <= j < len(self.board))
+                    and (self.board[i][j][1] in available_squares) ):
+
+                    moves.append(Move((r, c), square, self.board)) # create a move object and append to list
+        
+
+        else: #if it's dark's turn to move
+            available_squares = (" ", "l") #squares the knight can move to
+
+            for square in squares:
+                i,j = square
+                if ( (0 <= i < len(self.board)) and (0 <= j < len(self.board))
+                    and (self.board[i][j][1] in available_squares) ):
+
+                    moves.append(Move((r, c), square, self.board)) # create a move object and append to list
+
+
     def get_king_moves(self, r, c, moves):
-         ##TODO
-         pass
-    
+        """
+            calculates all possible king moves for a given colour (light or dark)
+            and appends them to a list
 
-    def get_queen_moves(self, r, c, moves):
-        ##TODO
-        pass
+            input parameters:
+            r     --> starting row (int)
+            c     --> starting column (int)
+            moves --> posiible moves container (list)
 
+            return parameter(s):
+            None
+        """
 
+        directions = ((-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1))
+        enemy_color = "d" if self.light_to_move else "l"
+
+        for d in directions:
+            end_row = r + d[0]
+            end_col = c + d[1]
+
+            if 0 <= end_row < 8 and 0<= end_col < 8:
+                destination = self.board[end_row][end_col]
+                if destination[1] == enemy_color or destination == "  ":
+                    moves.append(Move((r, c), (end_row, end_col), self.board))
+
+            
 
     def get_rook_moves(self, r, c, moves):
-        
-         """
+        """
             calculates all possible rook moves for a given colour (light or dark)
             and appends them to a list
 
@@ -168,10 +255,10 @@ class Game_state():
             return parameter(s):
             None
          """
-         direction = (-1, 1) # possible direction
-         
-         if self.light_to_move: # if it's light's turn to move
-            
+        direction = (-1, 1) # possible direction
+
+        if self.light_to_move: # if it's light's turn to move
+
             for d in direction:
                 #rows
                 for i in range(1,len(self.board)):
@@ -199,9 +286,9 @@ class Game_state():
                             break # when ally piece encountered
                     else:
                         break # when off the board
-        
+
          #if it's dark's turn to move
-         else: 
+        else:
             for d in direction:
                 #rows
                 for i in range(1,len(self.board)):
@@ -231,6 +318,23 @@ class Game_state():
                         break # when off the board
 
 
+    def get_queen_moves(self, r, c, moves):
+        """
+        Calculates all possible queen moves for a given color (light or dark)
+        based on bishop and rook moves.
+
+        input parameter(s):
+        r     --> starting row (int)
+        c     --> starting colum (int)
+        moves --> possible moves container (list)
+
+        return parameter(s):
+        None
+        """
+        ##TODO
+        self.get_bishop_moves(r, c, moves)
+        self.get_rook_moves(r, c, moves)
+
 
     def make_move(self, move):
         """
@@ -249,6 +353,16 @@ class Game_state():
         self.board[move.start_row][move.start_col] = "  "
         self.board[move.end_row][move.end_col] = move.piece_moved
         self.move_log.append(move) # log move
+
+        # Pawn Promotion
+        if (move.piece_moved == "pl" and move.end_row == 0) or (move.piece_moved == "pd" and move.end_row == 7):
+            promote_to = input("Pawn Promotion:\nInput q(Queen), r(rook), b(bishop), or n(knight) to promote: ") #we can add this to the ui later
+            promotion_options = ("q","r","b","n")
+            if promote_to in promotion_options:
+                self.board[move.end_row][move.end_col] = promote_to + move.piece_moved[1]
+            else: #create a default queen promotion if wrong input is given
+                self.board[move.end_row][move.end_col] = "q" + move.piece_moved[1]
+        
         self.light_to_move = not self.light_to_move # next player to move
 
 
@@ -261,10 +375,21 @@ class Game_state():
             self.board[last_move.start_row][last_move.start_col] = last_move.piece_moved
             self.board[last_move.end_row][last_move.end_col] = last_move.piece_captured
             
-            # if Undo move is en_passant
-            if last_move.move_type == "en_passant": 
-                self.board[last_move.end_row + 1][last_move.end_col] = last_move.piece_captured # Undo for light en-passant
-                self.board[last_move.end_row - 1][last_move.end_col] = last_move.piece_captured # Undo for dark en-passant
+            if last_move.move_type == "en_passant": # if the last move was an en-passant move
+                
+                if not self.light_to_move: # if the last move was light's move
+                    # undo piece capture
+                    self.board[last_move.end_row + 1][last_move.end_col] = last_move.piece_captured
+                else: # if the last move was dark's move
+                    # undo piece capture
+                    self.board[last_move.end_row - 1][last_move.end_col] = last_move.piece_captured
+
+                # remove piece from occupied square
+                self.board[last_move.end_row][last_move.end_col] = "  "
+
+            else: # if the last move was not an en-passant move
+                # undo piece capture
+                self.board[last_move.end_row][last_move.end_col] = last_move.piece_captured
             
             self.light_to_move = not self.light_to_move
 
